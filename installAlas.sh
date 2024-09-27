@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -e
+
+for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+
 # 更新apt包索引
 sudo apt-get update
 
@@ -29,11 +33,10 @@ git clone https://github.com/LmeSzinc/AzurLaneAutoScript.git
 cd ~/AzurLaneAutoScript/config
 mv deploy.template-docker-cn.yaml deploy.yaml
 cd ~/AzurLaneAutoScript/deploy/docker
-rm -rf Dockerfile
 mv Dockerfile.cn Dockerfile
 sudo docker build --no-cache -t hgjazhgj/alas:latest .
 cd ~/AzurLaneAutoScript
-sudo docker run -d --restart unless-stopped -v ${PWD}:/app/AzurLaneAutoScript -p 22267:22267 --name alas -it  hgjazhgj/alas # 前台启动容器
+sudo docker run -d --restart unless-stopped -v ${PWD}:/app/AzurLaneAutoScript -p 22267:22267 --name alas -it  hgjazhgj/alas # 后台启动容器
 
 
 
