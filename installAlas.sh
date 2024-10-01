@@ -39,9 +39,40 @@ else
   echo "Docker is already installed. Skipping installation."
 fi
 
-# 继续进行Git clone等操作
-cd ~
-git clone https://github.com/LmeSzinc/AzurLaneAutoScript.git
+# 检查仓库是否已经存在
+repo_path=~/AzurLaneAutoScript
+if [ -d "$repo_path" ]; then
+  echo "The repository already exists at $repo_path."
+  read -p "Do you want to delete it and clone a fresh copy? (y/n): " response
+  if [[ "$response" == "y" || "$response" == "Y" ]]; then
+    sudo rm -rf "$repo_path"
+    echo "Existing repository deleted."
+  else
+    echo "Skipping clone as the repository already exists."
+  fi
+fi
+
+# 如果用户选择删除或目录不存在，则进行克隆
+if [ ! -d "$repo_path" ]; then
+  cd ~
+  git clone https://ghp.ci/https://github.com/LmeSzinc/AzurLaneAutoScript.git
+fi
+
+# 检查是否存在名为 "alas" 的容器
+container_name="alas"
+if [ "$(sudo docker ps -aq -f name=^/${container_name}$)" ]; then
+  echo "A container named '$container_name' already exists."
+  read -p "Do you want to delete it and rebuild the container? (y/n): " response
+  if [[ "$response" == "y" || "$response" == "Y" ]]; then
+    sudo docker rm -f "$container_name"
+    echo "Existing container deleted."
+  else
+    echo "Skipping container build as the container already exists."
+    exit 0
+  fi
+fi
+
+# Docker 构建步骤
 cd ~/AzurLaneAutoScript/config
 mv deploy.template-docker-cn.yaml deploy.yaml
 cd ~/AzurLaneAutoScript/deploy/docker
